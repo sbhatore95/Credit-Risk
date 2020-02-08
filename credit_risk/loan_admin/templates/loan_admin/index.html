@@ -1,0 +1,5 @@
+<form action="{% url 'loan_admin:add' %}" method="POST" role="form">
+	{% csrf_token %}
+	{{ form }}
+    <input type="submit" value="Submit">
+</form>
