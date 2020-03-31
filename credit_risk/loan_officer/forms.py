@@ -5,8 +5,7 @@ from django.forms import ModelForm
 from django.db import connection
 from django.db import models
 import sys
-from .models import ModelSchema, FieldSchema
-from .models import CSV, Feature
+from .models import ModelSchema, FieldSchema, FileUpload
 from bootstrap4.widgets import RadioSelectButtonGroup
 
 # class CSVForm(forms.Form):
@@ -34,17 +33,15 @@ from bootstrap4.widgets import RadioSelectButtonGroup
 # 			a = LoanApplicant(all_field=j)
 # 			a.save()
 
-class FeatureForm(ModelForm):
-	columns = forms.CharField( widget=forms.Textarea )
-	nominal_features = forms.CharField( widget=forms.Textarea )
+class FileUploadForm(ModelForm):
 	class Meta:
-		model = Feature
+		model = FileUpload
 		fields = '__all__'
-	def process_data(self, f):
-		with open('id_dataset.csv', 'wb+') as destination:
-			for chunk in f.chunks():
-				destination.write(chunk)
-			destination.close()
+	# def process_data(self, dict, f):
+	# 	with open('id_dataset.csv', 'wb+') as destination:
+	# 		for chunk in f.chunks():
+	# 			destination.write(chunk)
+	# 		destination.close()
 
 class MyForm(forms.Form):
     # media_type = forms.ChoiceField(

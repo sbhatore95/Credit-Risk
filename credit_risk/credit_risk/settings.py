@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'loan_admin',
     'loan_officer',
+    'login',
     'dynamic_models',
     'bootstrap4',
     'crispy_forms',

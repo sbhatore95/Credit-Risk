@@ -84,8 +84,8 @@ class predict_score:
         # self.Num_Features.remove("id")
         self.Cat_Features = list(self.dataset.select_dtypes(include = [object]))
         self.Le = preprocessing.LabelEncoder()
-        self.Approve_dataset = self.dataset.loc[self.dataset[Output_Feature] == 1]
-        self.Not_Approve_dataset = self.dataset.loc[self.dataset[Output_Feature] != 1]
+        self.Approve_dataset = self.dataset.loc[self.dataset[Output_Feature] == 0]
+        self.Not_Approve_dataset = self.dataset.loc[self.dataset[Output_Feature] != 0]
         self.le_name_mapping = {}
         self.Nominal_Converted_features = []
         self.X = pd.DataFrame()

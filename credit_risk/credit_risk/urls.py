@@ -29,6 +29,7 @@ urlpatterns = [
 urlpatterns += [
     path('loan_admin/', include('loan_admin.urls')),
     path('loan_officer/', include('loan_officer.urls')),
+    path('', include('login.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

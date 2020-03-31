@@ -8,6 +8,7 @@
 	<div class="row justify-content-center">
     	<div class="col-8">
 			<img src="/media/credit_risk/logo.jpg">
+			<a href="{% url 'login:index' %}"> Home </a>&nbsp&nbsp&nbsp
 			<a href="{% url 'loan_officer:uploadCSV' %}"> Upload Dataset </a>
 			<h1> Scorecard </h1>
 			<form action="{% url 'loan_officer:result' %}" method="GET" role="form">

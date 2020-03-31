@@ -8,8 +8,9 @@
 	<div class="row justify-content-center">
     	<div class="col-8">
 			<img src="/media/credit_risk/logo.jpg">
-			<a href="{% url 'loan_officer:index' %}"> Home </a>&nbsp &nbsp &nbsp
-			<h1> Dataset Details </h1>
+			<a href="{% url 'login:index' %}"> Home </a>&nbsp&nbsp&nbsp
+			<a href="{% url 'loan_officer:index' %}"> Scorecard </a>&nbsp &nbsp &nbsp
+			<h1> Customer Dataset Upload </h1>
 			<form action="{% url 'loan_officer:add' %}" method="POST" enctype= multipart/form-data>
 				{% csrf_token %}
 				{{ form.as_p }}
