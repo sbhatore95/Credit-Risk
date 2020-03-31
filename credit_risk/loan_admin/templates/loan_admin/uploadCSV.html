@@ -11,7 +11,8 @@
     		<img src="/media/credit_risk/logo.jpg">
     		<a href="{% url 'login:index' %}"> Home </a>&nbsp&nbsp&nbsp
 			<a href="{% url 'loan_admin:index' %}"> Add Feature </a>&nbsp &nbsp &nbsp
-			<a href="{% url 'loan_admin:configuration' %}"> Configuration </a>
+			<a href="{% url 'loan_admin:configuration' %}"> Configuration </a>&nbsp &nbsp &nbsp
+			<a href="{% url 'loan_admin:criteria' %}"> Criteria </a>&nbsp&nbsp&nbsp
 			<h1> Upload Dataset </h1>
 			<form action="{% url 'loan_admin:addApplicant' %}" method="POST" enctype= multipart/form-data>
 				{% csrf_token %}

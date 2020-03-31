@@ -88,7 +88,6 @@ class CriteriaForm(forms.ModelForm):
 		('js', 'JSON'),
 		('sq', 'SQL'),
 	]
-	feature = forms.CharField(label="Feature"required=True)
 	category = forms.ChoiceField(label="Category",choices=CATEGORY_CHOICES)
 	product = forms.ChoiceField(label="Product",choices=PRODUCT_CHOICES)
 	data_source = forms.ChoiceField(
@@ -99,32 +98,44 @@ class CriteriaForm(forms.ModelForm):
         choices=((1, 'XML'), (2, 'JSON'), (3, 'SQL')),
         initial=1,
     )
-	api = forms.CharField(required=True)
-	key = forms.CharField(required=False)
+	api = forms.CharField(required=True, label="API/SQL")
+	key = forms.CharField(required=False, label="Key")
 	
 	def __init__(self, *args, **kwargs):
 		super(CriteriaForm, self).__init__(*args, **kwargs)
+		x = Feature.objects.values('name')
+		FEATURE_CHOICES = []
+		a = '1'
+		for field in x:
+			b = (a, field['name'])
+			FEATURE_CHOICES.append(b)
+			a = a + '1'
+		self.fields['feature'] = forms.ChoiceField(choices=FEATURE_CHOICES, required=True )
 		criterias = CriteriaHelper.objects.filter(
 			criteria=self.instance
 		)
-		for i in range(len(criterias) + 1):
-			field_name = 'entry_%s' % (i,)
-			f = 'score_%s' % (i,)
-			self.fields[field_name] = forms.CharField(required=False)
-			self.fields[f] = forms.CharField(required=False)
+		i = 0
+		for i in range(0, len(criterias)):
+			field_name = 'entry_' % (i,)
+			f = 'score_' + str(i+1)
+			str1 = "Criteria " + str(i+1)
+			str2 = "Score " + str(i+1)
+			self.fields[field_name] = forms.CharField(label=str1,required=False)
+			self.fields[f] = forms.CharField(label=str2,required=False)
 			try:
 				self.initial[field_name] = criterias[i].entry
 				self.initial[f] = criterias[i].score
 			except IndexError:
 				self.initial[field_name] = ""
 				self.initial[f] = ""
-        # create an extra blank field
-		field_name = 'entry_%s' % (i + 1,)
-		f = 'score_%s' % (i + 1,)
-		self.fields[field_name] = forms.CharField(required=False, 
-			widget=forms.TextInput(attrs={'class':'new_entry'}))
-		self.fields[f] = forms.CharField(required=False, 
-			widget=forms.TextInput(attrs={'class':'new_score'}))
+		field_name = 'entry_' + str(i+1)
+		f = 'score_' + str(i+1)
+		str1 = "Criteria " + str(i+1)
+		str2 = "Score " + str(i+1)
+		self.fields[field_name] = forms.CharField(label=str1,required=False, 
+			widget=forms.TextInput(attrs={'id':'new_entry'}))
+		self.fields[f] = forms.CharField(label=str2,required=False, 
+			widget=forms.TextInput(attrs={'id':'new_score'}))
 
 	def clean(self):
 		entries = set()
@@ -177,22 +188,22 @@ class CriteriaForm(forms.ModelForm):
 		for field_name in self.fields:
 			if field_name.startswith('score_'):
 				yield self[field_name]
-	def get_both(self):
-		ans = []
-		A = []
-		B = []
-		for field_name in self.fields:
-			if field_name.startswith('entry_'):
-				A.append(self[field_name])
-		for field_name in self.fields:
-			if field_name.startswith('score_'):
-				B.append(self[field_name])
-		for i in range(0, len(A)):
-			ans.append(A[i])
-			if(i+1 < len(A)):
-				ans.append(B[i+1])
-		return ans
+	# def get_both(self):
+	# 	ans = []
+	# 	A = []
+	# 	B = []
+	# 	for field_name in self.fields:
+	# 		if field_name.startswith('entry_'):
+	# 			A.append(self[field_name])
+	# 	for field_name in self.fields:
+	# 		if field_name.startswith('score_'):
+	# 			B.append(self[field_name])
+	# 	for i in range(0, len(A)):
+	# 		ans.append(A[i])
+	# 		if(i+1 < len(A)):
+	# 			ans.append(B[i+1])
+	# 	return ans
 
 	class Meta:
 		model = Criteria
-		fields = '__all__'
+		fields = ['feature','category','product','data_source','api','key']

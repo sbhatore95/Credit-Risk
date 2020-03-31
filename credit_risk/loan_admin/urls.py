@@ -11,7 +11,7 @@ urlpatterns = [
 	path('configuration', views.configuration, name='configuration'),
 	path('criteria', views.criteria, name='criteria'),
 	path('weigh', views.addConfiguration, name='weigh'),
-	path('cri', views.addCriteria, name='cri'),
+	path('addCriteria', views.addCriteria, name='cri'),
 	path('configuration/?add1=ok2', views.configuration, name='configuration1'),
 	path('criteria/?add2=ok3', views.criteria, name='criteria1'),
 	path('uploadCSV', views.uploadCSV, name='uploadCSV'),
