@@ -11,12 +11,14 @@ from urllib.parse import urlencode
 from .forms import UploadFileForm, CriteriaForm
 import sys
 from .counter import *
+from django.contrib import messages
 # Create your views here.
 
 def index(request):
 	add = request.GET.get('add')
 	form = FeatureForm()
 	if(add == 'ok1'):
+		messages.info(request, 'Record created successfully')
 		context = {'form':form, 'add':add}
 	else:
 		context = {'form':form}
@@ -25,7 +27,11 @@ def index(request):
 def configuration(request):
 	add = request.GET.get('add1')
 	form = ConfigurationForm()
-	context = {'form':form, 'add':add}
+	if(add == 'ok2'):
+		messages.info(request, 'Record created successfully')
+		context = {'form':form, 'add':add}
+	else:
+		context = {'form':form}
 	return render(request, 'loan_admin/configuration.html', context)
 
 @require_POST
@@ -55,6 +61,7 @@ def criteria(request):
 	form = CriteriaForm()
 	counter = Counter()
 	if(add == 'ok3'):
+		messages.info(request, 'Record created successfully')
 		context = {'form':form, 'counter':counter, 'add':add}
 	else:
 		context = {'form':form, 'counter':counter}
@@ -62,10 +69,17 @@ def criteria(request):
 
 @require_POST
 def addCriteria(request):
+	print("----------")
+	print(request.POST.get('entry_2'))
+	print("----------")
 	form = CriteriaForm(request.POST)
 	url = reverse('loan_admin:criteria') 
+	print("++++")
 	if form.is_valid():
-		feature = form.save()
+		form.clean()
+		print("?????")
+		form.save()
+		print("*****")
 		base_url = reverse('loan_admin:criteria')
 		query_string =  urlencode({'add2': 'ok3'})
 		url = '{}?{}'.format(base_url, query_string)
@@ -74,7 +88,11 @@ def addCriteria(request):
 def uploadCSV(request):
 	add = request.GET.get('add3')
 	form = UploadFileForm()
-	context = {'form':form, 'add':add}
+	if(add == 'ok4'):
+		messages.info(request, 'Record created successfully')
+		context = {'form':form, 'add':add}
+	else:
+		context = {'form':form}
 	return render(request, 'loan_admin/uploadCSV.html', context)
 
 @require_POST

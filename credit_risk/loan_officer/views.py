@@ -11,7 +11,7 @@ from .models import SavedState
 import pickle
 import codecs
 from six.moves import cPickle
-from loan_admin.models import UploadFile
+from loan_admin.models import UploadFile, Criteria, CriteriaHelper, Configuration
 
 def index(request):
 	form = MyForm()
@@ -58,7 +58,59 @@ def result(request):
 		del sp[0]
 		res = load_and_predict("statandml", sp)
 	elif(rule):
-		pass
+		f = open('test_id_rule_dataset.csv', 'r')
+		line = f.readline()
+		array = line.split(',')
+		array[-1] = array[-1].replace('\n', '')
+		print(array)
+		Dict = {}
+		for i in range(0, len(array)):
+			Dict[array[i]] = i
+		print(Dict)
+		line = f.readline()
+		while line != "":
+			sp = line.split(',')
+			if(sp[0] == loan_id):
+				break
+			line = f.readline()
+		sp[-1] = sp[-1].replace('\n', '')
+		print(sp)
+		cri = Criteria.objects.all()
+		conf = Configuration.objects.all()
+		ans = 0
+		for configuration in conf:
+			for criteria in cri:
+				helper = CriteriaHelper.objects.all().filter(criteria=criteria)
+				truth = (criteria.feature == configuration.feature and criteria.product == configuration.product
+					and criteria.category == configuration.category)
+				print(truth)
+				if(truth):
+					print(criteria.data_source == '3')
+					if(criteria.data_source == '3'): # for SQL
+						feature = criteria.api.split(' ')[-1]
+						print(feature)
+					feature_score = 0
+					for crhelper in helper:
+						# For categorical
+						tup = crhelper.entry.split(' ')
+						if(tup[0] == "is"):
+							print(sp[Dict[feature]])
+							if(tup[1] == sp[Dict[feature]]):
+								feature_score += crhelper.score
+						elif(tup[0] == ">"):
+							if(int(sp[Dict[feature]]) > int(tup[1])):
+								feature_score += crhelper.score
+						elif(tup[0] == "<"):
+							if(int(sp[Dict[feature]]) < int(tup[1])):
+								feature_score += crhelper.score
+						elif(tup[0] == ">="):
+							if(int(sp[Dict[feature]]) >= int(tup[1])):
+								feature_score += crhelper.score
+						elif(tup[0] == "<="):
+							if(int(sp[Dict[feature]]) <= int(tup[1])):
+								feature_score += crhelper.score
+					ans += configuration.weightage * feature_score
+		f.close()
 	elif(stat):
 		if(SavedState.objects.all().first().stat == "false"):
 			learn_and_save("statistical", columns, nominal, "dataset.csv")
@@ -67,25 +119,17 @@ def result(request):
 			m.save()
 		f = open('media/credit_risk/dataset/test_id_dataset.csv', 'r')
 		line = f.readline()
-		fw = open('result.csv', 'w')
+		sp = line.split(',')
+		count = 0
 		while(line != ""):
+			if(sp[0] == loan_id):
+				break
 			sp = line.split(',')
-			del sp[0]
-			del sp[0]
-			fw.write(load_and_predict("statistical", sp) + '\n')
 			line = f.readline()
-		fw.close()
-		# sp = line.split(',')
-		# count = 0
-		# while(line != ""):
-		# 	if(sp[0] == loan_id):
-		# 		break
-		# 	sp = line.split(',')
-		# 	line = f.readline()
-		# # if(sp[0] != int(loan_id)):
-		# del sp[0]
-		# del sp[0]
-		# res = load_and_predict("statistical", sp)
+		# if(sp[0] != int(loan_id)):
+		del sp[0]
+		del sp[0]
+		res = load_and_predict("statistical", sp)
 	else:
 		if(SavedState.objects.all().first().ml == "false"):
 			learn_and_save("ml", columns, nominal, "dataset.csv")
@@ -106,10 +150,13 @@ def result(request):
 		del sp[0]
 		del sp[0]
 		res = load_and_predict("ml", sp)
-	# out = res.split(',')
-	# context = {'approve': out[0], 'not_approve': out[1]}
-	# return render(request, 'loan_officer/result.html', context)
-	return render(request, 'loan_officer/result.html')
+	if(rule):
+		context = {'stat':True,'ans':ans}
+		return render(request, 'loan_officer/result.html', context)
+	else:
+		out = res.split(',')
+		context = {'stat':False, 'approve': out[0], 'not_approve': out[1]}
+		return render(request, 'loan_officer/result.html', context)
 
 def uploadCSV(request):
 	add = request.GET.get('add')

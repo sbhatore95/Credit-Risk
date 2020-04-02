@@ -14,8 +14,8 @@ class FeatureForm(forms.ModelForm):
 		fields = ['name', 'value', 'data_type', 'category']
 
 class ConfigurationForm(forms.ModelForm):	
-	def __init__(self):
-		super(ConfigurationForm, self).__init__()
+	def __init__(self, *args, **kwargs):
+		super(ConfigurationForm, self).__init__(*args, **kwargs)
 		x = Feature.objects.values('name')
 		print(x)
 		FEATURE_CHOICES = []
@@ -102,6 +102,7 @@ class CriteriaForm(forms.ModelForm):
 	key = forms.CharField(required=False, label="Key")
 	
 	def __init__(self, *args, **kwargs):
+		self.entry_count = 0
 		super(CriteriaForm, self).__init__(*args, **kwargs)
 		x = Feature.objects.values('name')
 		FEATURE_CHOICES = []
@@ -120,6 +121,7 @@ class CriteriaForm(forms.ModelForm):
 			f = 'score_' + str(i+1)
 			str1 = "Criteria " + str(i+1)
 			str2 = "Score " + str(i+1)
+			self.entry_count += 1
 			self.fields[field_name] = forms.CharField(label=str1,required=False)
 			self.fields[f] = forms.CharField(label=str2,required=False)
 			try:
@@ -132,35 +134,57 @@ class CriteriaForm(forms.ModelForm):
 		f = 'score_' + str(i+1)
 		str1 = "Criteria " + str(i+1)
 		str2 = "Score " + str(i+1)
+		self.entry_count += 1
 		self.fields[field_name] = forms.CharField(label=str1,required=False, 
 			widget=forms.TextInput(attrs={'id':'new_entry'}))
 		self.fields[f] = forms.CharField(label=str2,required=False, 
 			widget=forms.TextInput(attrs={'id':'new_score'}))
+		count = 1
+		if(args):
+			print(args[0])
+			for key in args[0]:
+				if(key[:5] == "entry"):
+					count += 1
+			print("count " + str(count))
+			for i in range(1, count-1):
+				field_name = 'entry_' + str(i+1)
+				f = 'score_' + str(i+1)
+				str1 = "Criteria " + str(i+1)
+				str2 = "Score " + str(i+1)
+				self.entry_count += 1
+				self.fields[field_name] = forms.CharField(label=str1,required=False, 
+					widget=forms.TextInput(attrs={'id':'new_entry'}))
+				self.fields[f] = forms.CharField(label=str2,required=False, 
+					widget=forms.TextInput(attrs={'id':'new_score'}))
 
 	def clean(self):
-		entries = set()
-		i = 0
+		entries = []
+		i = 1
 		field_name = 'entry_%s' % (i,)
+		print("<>")
+		print(self.cleaned_data)
+		print("<>")
 		while self.cleaned_data.get(field_name):
+			# print(dict(field_name))
 			entry = self.cleaned_data[field_name]
 			if entry in entries:
 				self.add_error(field_name, 'Duplicate')
 			else:
-				entries.add(entry)
+				entries.append(entry)
 			i += 1
 			field_name = 'entry_%s' % (i,)
 		self.cleaned_data["entries"] = entries
-		scores = set()
-		i = 0
+		scores = []
+		i = 1
 		f = 'score_%s' % (i,)
-		while self.cleaned_data.get(field_name):
-			score = self.cleaned_data[field_name]
+		while self.cleaned_data.get(f):
+			score = self.cleaned_data[f]
 			if score in scores:
-				self.add_error(field_name, 'Duplicate')
+				self.add_error(f, 'Duplicate')
 			else:
-				scores.add(score)
+				scores.append(score)
 			i += 1
-		field_name = 'score_%s' % (i,)
+			f = 'score_%s' % (i,)
 		self.cleaned_data["scores"] = scores
 
 	def save(self):
@@ -171,7 +195,10 @@ class CriteriaForm(forms.ModelForm):
 		criteria.key = self.cleaned_data["key"]
 		criteria.data_source = self.cleaned_data["data_source"]
 		criteria.product = self.cleaned_data["product"]
-		criteria.entry_set.all().delete()
+		criteria.save()
+		print("-->")
+		print(self.cleaned_data["entries"])
+		print("<--")
 		for i in range(0, len(self.cleaned_data["entries"])):
 			CriteriaHelper.objects.create(
 				criteria=criteria,
@@ -188,6 +215,7 @@ class CriteriaForm(forms.ModelForm):
 		for field_name in self.fields:
 			if field_name.startswith('score_'):
 				yield self[field_name]
+
 	# def get_both(self):
 	# 	ans = []
 	# 	A = []

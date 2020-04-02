@@ -15,7 +15,7 @@
 			    let n1 = parseInt(name1.split('_')[1]) + 1
                 name = 'entry_' + n
 			    name1 = 'score_' + n1
-                $("<label>Criteria "+n+"</label>"+
+                $("<br><label>Criteria "+n+"</label>"+
                 "<input name='"+name+"' id='new_entry' class='textinput textInput form-control'>" 
                 + "<br>" +
                  "<label>Score "+n1+"</label>"+
@@ -37,6 +37,13 @@
 			<a href="{% url 'loan_admin:configuration' %}"> Configuration </a>&nbsp &nbsp &nbsp
 			<a href="{% url 'loan_admin:uploadCSV' %}"> Upload Dataset </a>
 			<h1> Criteria </h1>
+			{% if messages %}
+			<ul class="messages">
+			    {% for message in messages %}
+			    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+			    {% endfor %}
+			</ul>
+			{% endif %}
 			<form action="{% url 'loan_admin:cri' %}" method="POST" role="form" class=".interest-list-new">
 				{% csrf_token %}
 				{{ form|crispy }}

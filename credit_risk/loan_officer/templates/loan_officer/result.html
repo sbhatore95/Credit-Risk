@@ -12,10 +12,14 @@
 			<a href="{% url 'loan_officer:index' %}"> Scorecard </a>&nbsp &nbsp &nbsp
 			<a href="{% url 'loan_officer:uploadCSV' %}"> Upload Dataset </a>
 			<h1> Results </h1>
-			<!-- <table>
-				<tr><td><b>Approve</b>&nbsp &nbsp</td><td>{{ approve }}</td>
-				<tr><td><b>Not Approve</b>&nbsp &nbsp</td><td>{{ not_approve }}</td>
-			</table> -->
+			<table>
+				{% if stat %}
+					<tr><td><b>Score: </b>{{ ans }}</td></tr>
+				{% else %}
+				<tr><td><b>Approve</b>&nbsp &nbsp</td><td>{{ approve }}</td></tr>
+				<tr><td><b>Not Approve</b>&nbsp &nbsp</td><td>{{ not_approve }}</td></tr>
+				{% endif %}
+			</table>
 		</div>
 	</div>
 </div>
